@@ -1,71 +1,210 @@
-import {IMatrix2DElem} from "./IMatrix2DElem";
+import {BasicList} from "./BasicList";
+import {Matrix2DElem} from "./Matrix2DElem";
 
-interface BasicList {
-	start:IMatrix2DElem;
-	end:IMatrix2DElem;
-}
-
-abstract class AbsMatrix2DLinkedList {
+class AbsMatrix2DLinkedList {
 
 	public matrix:BasicList;
-	public elem:IMatrix2DElem;
+	public elem:Matrix2DElem;
 
+	private prev_data:Matrix2DElem;
+	private prev_row:Array<Matrix2DElem>;
+	private rows:number;
+	private cols:number;
+	private row_list:BasicList;
+
+	public constructor() {
+		this.init();
+	}
+
+	/**
+	 *
+	 */
+	public init() {
+		this.prev_row = [];
+
+		this.matrix = new BasicList();
+		this.matrix.start = null;
+		this.matrix.end = null;
+	}
+
+	/**
+	 *
+	 */
 	public listing2DArrayMatrix(arr_matrix:Array<any>) {
 
-		for(let i = 0; i < arr_matrix[i].length; i++) {
-			let col:Array<any> = arr_matrix[i];
-			for(let j = 0; i < col.length; j++) {
+		this.setDimensions(arr_matrix);
 
-				let elem:any = arr_matrix[i][j];
+		for(let i = 0; i < this.rows; i++) {
 
-				if (this.matrix.start === null) {
-					this.matrix.start = this.makeElem();
-					this.matrix.end = this.matrix.start;
-				}
-				else {
-					// Se siamo al primo elemento della matrice...
-					if ((i === 0) && (j === 0)) {
-						this.matrix.end.r = this.makeElem();
-					}
-					// ... altrimenti se si è nella prima riga...
-					else if ((i === 0) && (j > 0)) {
-						
-					}
-					// ... tutti gli altri elementi
-					else {
+			this.row_list = new BasicList();
+			this.row_list.start = null;
 
-					}
-					
-					this.matrix.end = this.matrix.end.r;
-				}
-		
-				this.matrix.end.elem = elem;
+			for(let j = 0; j < this.cols; j++) {
+				this.addRowElement(arr_matrix[i][j]);
 			}
+
+			this.connectWithPreviousRow(this.row_list);
+
+			this.row_list = null;
 		}
 	}
 
-	public makeElem():IMatrix2DElem {
+	/**
+	 *
+	 */
+ 	public traverse() {
 
-		var elem_to_make:IMatrix2DElem;
+ 		var current:Matrix2DElem = this.matrix.start;
+ 		var verso:boolean = true; // true: top to bottom; false: bottom to top
+ 		var next:Matrix2DElem = current.b;
 
-		elem_to_make.elem = null;
+		while (current !== null) {
 
-		elem_to_make.t = null; //top
-		elem_to_make.tr = null; //top-right
-	
-		elem_to_make.r = null; //right
-		elem_to_make.br = null; //bottom-right
+			console.log(current.elem);
 
-		elem_to_make.b = null; //bottom
-		elem_to_make.bl = null; //bottom-left
+ 			next = (verso) ? current.b : current.t ;
 
-		elem_to_make.l = null; //left
-		elem_to_make.tl = null; //top-left
+			if (next) {
+				current = next;
+			}
+			else {
+ 				current = current.r;
+ 				verso = !verso;
+ 			}
+		}
+ 	}
 
-		return elem_to_make; 
+	/**
+	 *
+	 */
+	public makeElem():Matrix2DElem {
+		var elem = new Matrix2DElem();
+		return elem;
 	}
 
+	/**
+	 *
+	 */
 	public addElem(elem:any) {
 
 	}
+
+	/**
+	 *
+	 */
+	private setDimensions(arr_matrix:Array<any>) {
+		this.rows = arr_matrix.length;
+		this.cols = arr_matrix[0].length;
+	}
+
+	/**
+	 *
+	 */
+	private createNewListElem(row:number, col:number):Matrix2DElem {
+		var new_elem = this.makeElem();
+		new_elem.l = this.prev_data;
+
+		if (this.prev_row[col]) {
+			new_elem.t = this.prev_row[col];
+			this.prev_row[col].b = new_elem;
+		}
+
+		return new_elem;
+	}
+
+	/**
+	 *
+	 */
+	private addRowElement(data:any) {
+		if (this.row_list.start === null) {
+			this.row_list.start = this.makeElem();
+			this.row_list.end = this.row_list.start;
+		}
+		else {
+
+			let new_elem = this.makeElem();
+
+			new_elem.l = this.prev_data;
+			this.row_list.end.r = new_elem;
+			this.row_list.end = this.row_list.end.r;
+		}
+
+		this.row_list.end.elem = data;
+		this.prev_data = this.row_list.end;
+	}
+
+	/**
+	 *
+	 */
+	private connectWithPreviousRow(row:BasicList) {
+
+		if (this.matrix.start === null) {
+			this.matrix = row;
+			return;
+		}
+
+		var matrix_elem = this.matrix.start;
+		while (matrix_elem.b !== null) {
+			matrix_elem = matrix_elem.b; 
+		}
+		
+		var row_elem = row.start;
+		while (row_elem !== null) {
+			this.connectElement(matrix_elem, row_elem);
+ 			row_elem = row_elem.r; 
+ 			matrix_elem = matrix_elem.r; 
+		}
+	}
+
+	/**
+	 *
+	 */
+	private connectElement(matrix_elem:Matrix2DElem, row_elem:Matrix2DElem) {
+		matrix_elem.b = row_elem;
+		row_elem.t = matrix_elem;
+
+		// inizio riga
+		if (row_elem.l === null) {
+			matrix_elem.br = row_elem.r;
+			row_elem.tr = matrix_elem.r;
+		}
+		// inter riga
+		else if ((row_elem.l !== null) && (row_elem.r !== null)) {
+			matrix_elem.bl = row_elem.l;
+			matrix_elem.br = row_elem.r;
+			row_elem.tl = matrix_elem.l;
+			row_elem.tr = matrix_elem.r;
+		}
+		// fine riga
+		else if (row_elem.r === null) {
+			matrix_elem.bl = row_elem.l;
+			row_elem.bl = matrix_elem.l;
+		}
+	}
+
+	/**
+	 *
+	 */
+	private destroyArray(arr:Array<any>) {
+		let l = arr.length;
+		for (let i = l-1; i >= 0; i++) {
+			arr.pop();
+		}
+		arr = [];
+	}
 }
+
+export {AbsMatrix2DLinkedList};
+
+var matrix:AbsMatrix2DLinkedList = new AbsMatrix2DLinkedList();
+
+matrix.listing2DArrayMatrix([
+	['a','b','c','d'],
+	['f','g','h','i'],
+	['l','m','n','o'],
+	['p','q','r','s']
+]);
+
+matrix.traverse();
+
+
