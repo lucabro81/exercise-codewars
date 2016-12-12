@@ -4,42 +4,48 @@ import {Matrix2DElem} from "./Matrix2DElem";
 class AbsMatrix2DLinkedList {
 
 	public matrix:BasicList;
-	public elem:Matrix2DElem;
+	public rows:number;
+	public cols:number;
 
 	private prev_data:Matrix2DElem;
-	private prev_row:Array<Matrix2DElem>;
-	private rows:number;
-	private cols:number;
 	private row_list:BasicList;
+	private arr_matrix:Array<any>;
+	private reference_table:any;
 
-	public constructor() {
-		this.init();
+	/**
+	 *
+	 * @param arr_matrix
+     */
+	public constructor(arr_matrix:Array<any>) {
+		this.arr_matrix = arr_matrix;
 	}
 
 	/**
 	 *
 	 */
 	public init() {
-		this.prev_row = [];
-
 		this.matrix = new BasicList();
 		this.matrix.start = null;
 		this.matrix.end = null;
+		this.reference_table = {};
+
+		this.setDimensions(this.arr_matrix);
+		this.listing2DArrayMatrix(this.arr_matrix);
+		this.createReferenceTable();
 	}
 
 	/**
 	 *
-	 */
+	 * @param arr_matrix
+     */
 	public listing2DArrayMatrix(arr_matrix:Array<any>) {
 
-		this.setDimensions(arr_matrix);
-
-		for(let i = 0; i < this.rows; i++) {
+		for (let i = 0; i < this.rows; i++) {
 
 			this.row_list = new BasicList();
 			this.row_list.start = null;
 
-			for(let j = 0; j < this.cols; j++) {
+			for (let j = 0; j < this.cols; j++) {
 				this.addRowElement(arr_matrix[i][j]);
 			}
 
@@ -52,15 +58,16 @@ class AbsMatrix2DLinkedList {
 	/**
 	 *
 	 */
- 	public traverse() {
+ 	public traverse():Array<Matrix2DElem> {
 
+		var elem_arr:Array<Matrix2DElem> = [];
  		var current:Matrix2DElem = this.matrix.start;
  		var verso:boolean = true; // true: top to bottom; false: bottom to top
  		var next:Matrix2DElem = current.b;
 
 		while (current !== null) {
 
-			console.log(current.elem);
+			elem_arr.push(current.elem);
 
  			next = (verso) ? current.b : current.t ;
 
@@ -72,26 +79,22 @@ class AbsMatrix2DLinkedList {
  				verso = !verso;
  			}
 		}
+
+		return elem_arr;
  	}
 
 	/**
 	 *
-	 */
+	 * @returns {Matrix2DElem}
+     */
 	public makeElem():Matrix2DElem {
-		var elem = new Matrix2DElem();
-		return elem;
+		return new Matrix2DElem();
 	}
 
 	/**
 	 *
-	 */
-	public addElem(elem:any) {
-
-	}
-
-	/**
-	 *
-	 */
+	 * @param arr_matrix
+     */
 	private setDimensions(arr_matrix:Array<any>) {
 		this.rows = arr_matrix.length;
 		this.cols = arr_matrix[0].length;
@@ -99,22 +102,8 @@ class AbsMatrix2DLinkedList {
 
 	/**
 	 *
-	 */
-	private createNewListElem(row:number, col:number):Matrix2DElem {
-		var new_elem = this.makeElem();
-		new_elem.l = this.prev_data;
-
-		if (this.prev_row[col]) {
-			new_elem.t = this.prev_row[col];
-			this.prev_row[col].b = new_elem;
-		}
-
-		return new_elem;
-	}
-
-	/**
-	 *
-	 */
+	 * @param data
+     */
 	private addRowElement(data:any) {
 		if (this.row_list.start === null) {
 			this.row_list.start = this.makeElem();
@@ -135,7 +124,8 @@ class AbsMatrix2DLinkedList {
 
 	/**
 	 *
-	 */
+	 * @param row
+     */
 	private connectWithPreviousRow(row:BasicList) {
 
 		if (this.matrix.start === null) {
@@ -158,7 +148,9 @@ class AbsMatrix2DLinkedList {
 
 	/**
 	 *
-	 */
+	 * @param matrix_elem
+	 * @param row_elem
+     */
 	private connectElement(matrix_elem:Matrix2DElem, row_elem:Matrix2DElem) {
 		matrix_elem.b = row_elem;
 		row_elem.t = matrix_elem;
@@ -182,9 +174,22 @@ class AbsMatrix2DLinkedList {
 		}
 	}
 
+	private createReferenceTable() {
+
+		var current:Matrix2DElem = this.matrix.start;
+
+		for (let i = 0; i < this.rows; i++) {
+			for (let j = 0; j < this.cols; j++) {
+
+				current = current.r;
+			}
+		}
+	}
+
 	/**
 	 *
-	 */
+	 * @param arr
+     */
 	private destroyArray(arr:Array<any>) {
 		let l = arr.length;
 		for (let i = l-1; i >= 0; i++) {
@@ -196,15 +201,15 @@ class AbsMatrix2DLinkedList {
 
 export {AbsMatrix2DLinkedList};
 
-var matrix:AbsMatrix2DLinkedList = new AbsMatrix2DLinkedList();
-
-matrix.listing2DArrayMatrix([
-	['a','b','c','d'],
-	['f','g','h','i'],
-	['l','m','n','o'],
-	['p','q','r','s']
-]);
-
-matrix.traverse();
+//var matrix:AbsMatrix2DLinkedList = new AbsMatrix2DLinkedList([
+//	['a','b','c','d'],
+//	['f','g','h','i'],
+//	['l','m','n','o'],
+//	['p','q','r','s']
+//]);
+//
+//matrix.init();
+//
+//matrix.traverse();
 
 
