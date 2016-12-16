@@ -186,9 +186,15 @@ class AbsMatrix2DLinkedList {
 	 *
 	 */
 	private setLookupTableElems() {
-		for (let i = 0; i < this.rows; i++) {
-			for (let j = 0; j < this.cols; j++) {
-				//this.col_list_lookup_table["R_" + i + "_0 C_" + j + "_0"] =
+		for (let row = 0; row < this.rows; row++) {
+
+			var row_elem:Matrix2DElem = this.row_list_lookup_table['R_' + row + '_0'].start;
+			var col:number = 0;
+
+			while (row_elem !== null) {
+				this.elem_list_lookup_table['C_' + col + '_0 R_' + row + '_0'] = row_elem;
+				row_elem = row_elem.r;
+				col++;
 			}
 		}
 	}
