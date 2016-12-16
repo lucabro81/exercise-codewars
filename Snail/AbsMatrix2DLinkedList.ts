@@ -9,6 +9,7 @@ class AbsMatrix2DLinkedList {
 
 	private prev_data:Matrix2DElem;
 	private row_list:BasicList;
+	private row_list_lookup_table:any;
 	private arr_matrix:Array<any>;
 	private reference_table:any;
 
@@ -31,10 +32,10 @@ class AbsMatrix2DLinkedList {
 
 		this.setDimensions(this.arr_matrix);
 		this.listing2DArrayMatrix(this.arr_matrix);
-		this.createReferenceTable();
 	}
 
 	/**
+	 * Converte una matrice formata da array in una struttura linkata 2d
 	 *
 	 * @param arr_matrix
      */
@@ -49,6 +50,7 @@ class AbsMatrix2DLinkedList {
 				this.addRowElement(arr_matrix[i][j]);
 			}
 
+			this.addLookupTableRowElem(i, this.row_list);
 			this.connectWithPreviousRow(this.row_list);
 
 			this.row_list = null;
@@ -148,6 +150,37 @@ class AbsMatrix2DLinkedList {
 
 	/**
 	 *
+	 * @param row
+	 * @param row_list
+     */
+	private addLookupTableRowElem(row:number, row_list:BasicList) {
+		this.row_list_lookup_table['R_' + row + '_0'] = row_list.start;
+
+		// Ovviamente non serve ripeterlo per ogni riga, basta la prima
+		if (row === 0) {
+
+			var col:number = 0;;
+			var row_elem:Matrix2DElem = row_list.start;
+
+			while (row_elem !== null) {
+				this.addLookupTableColElem(col, row_elem);
+				row_elem = row_elem.r;
+				col++;
+			}
+		}
+	}
+
+	/**
+	 *
+	 * @param col
+	 * @param col_start
+     */
+	private addLookupTableColElem(col:number, col_start:Matrix2DElem) {
+		this.row_list_lookup_table['C_' + col + '_0'] = col_start;
+	}
+
+	/**
+	 *
 	 * @param matrix_elem
 	 * @param row_elem
      */
@@ -171,18 +204,6 @@ class AbsMatrix2DLinkedList {
 		else if (row_elem.r === null) {
 			matrix_elem.bl = row_elem.l;
 			row_elem.bl = matrix_elem.l;
-		}
-	}
-
-	private createReferenceTable() {
-
-		var current:Matrix2DElem = this.matrix.start;
-
-		for (let i = 0; i < this.rows; i++) {
-			for (let j = 0; j < this.cols; j++) {
-
-				current = current.r;
-			}
 		}
 	}
 
