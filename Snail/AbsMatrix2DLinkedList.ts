@@ -10,6 +10,8 @@ class AbsMatrix2DLinkedList {
 	private prev_data:Matrix2DElem;
 	private row_list:BasicList;
 	private row_list_lookup_table:any;
+	private col_list_lookup_table:any;
+	private elem_list_lookup_table:any;
 	private arr_matrix:Array<any>;
 	private reference_table:any;
 
@@ -32,6 +34,7 @@ class AbsMatrix2DLinkedList {
 
 		this.setDimensions(this.arr_matrix);
 		this.listing2DArrayMatrix(this.arr_matrix);
+		this.setLookupTableElems();
 	}
 
 	/**
@@ -176,7 +179,18 @@ class AbsMatrix2DLinkedList {
 	 * @param col_start
      */
 	private addLookupTableColElem(col:number, col_start:Matrix2DElem) {
-		this.row_list_lookup_table['C_' + col + '_0'] = col_start;
+		this.col_list_lookup_table['C_' + col + '_0'] = col_start;
+	}
+
+	/**
+	 *
+	 */
+	private setLookupTableElems() {
+		for (let i = 0; i < this.rows; i++) {
+			for (let j = 0; j < this.cols; j++) {
+				//this.col_list_lookup_table["R_" + i + "_0 C_" + j + "_0"] =
+			}
+		}
 	}
 
 	/**
