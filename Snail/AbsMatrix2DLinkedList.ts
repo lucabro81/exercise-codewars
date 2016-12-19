@@ -201,6 +201,13 @@ class AbsMatrix2DLinkedList {
 
 	/**
 	 *
+	 */
+	private normalize() {
+
+	}
+
+	/**
+	 *
 	 * @param matrix_elem
 	 * @param row_elem
      */
