@@ -162,7 +162,7 @@ class AbsMatrix2DLinkedList {
 		// Ovviamente non serve ripeterlo per ogni riga, basta la prima
 		if (row === 0) {
 
-			var col:number = 0;;
+			var col:number = 0;
 			var row_elem:Matrix2DElem = row_list.start;
 
 			while (row_elem !== null) {
